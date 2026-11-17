@@ -1380,28 +1380,41 @@
     window.addEventListener('afterprint', endPrintAll);
 
     function printWholeCourse() {
-      endPrintAll();
-      const name = document.getElementById('student-name').value.trim();
-      document.getElementById('print-all-name').textContent = name || 'Non renseigné';
-      document.getElementById('print-all-score').textContent = lastQuizScore || 'Non évalué';
+      try {
+        endPrintAll();
+        const studentName = document.getElementById('student-name');
+        const printName = document.getElementById('print-all-name');
+        const printScore = document.getElementById('print-all-score');
+        const printNote = document.getElementById('print-all-note');
+        if (!studentName || !printName || !printScore || !printNote) {
+          throw new Error('Les éléments nécessaires à la préparation de l’impression sont introuvables.');
+        }
 
-      const tabs = Array.from(document.querySelectorAll('.tab-content'));
-      // L'impression du cours complet inclut les 4 étapes, même si elles sont
-      // verrouillées dans le parcours interactif de l'élève.
-      document.getElementById('print-all-note').textContent =
-        'Version papier complète : les quatre étapes et les trois documents sont inclus.';
+        printName.textContent = studentName.value.trim() || 'Non renseigné';
+        printScore.textContent = lastQuizScore || 'Non évalué';
+        // L'impression inclut les 4 étapes, même si elles sont verrouillées.
+        printNote.textContent =
+          'Version papier complète : les quatre étapes et les trois documents sont inclus.';
 
-      // Copie des réponses dans des blocs imprimables (évite les champs coupés à l'impression)
-      document.querySelectorAll('textarea, input.trace-input').forEach(el => {
-        const div = document.createElement('div');
-        div.className = 'print-mirror hidden whitespace-pre-wrap text-xs sm:text-sm p-2.5 rounded-lg border border-stone-300 bg-white';
-        div.textContent = el.value.trim() || '(Non complété)';
-        el.insertAdjacentElement('afterend', div);
-      });
+        const tabs = Array.from(document.querySelectorAll('.tab-content'));
+        document.querySelectorAll('textarea, input.trace-input').forEach(el => {
+          const div = document.createElement('div');
+          div.className = 'print-mirror hidden whitespace-pre-wrap text-xs sm:text-sm p-2.5 rounded-lg border border-stone-300 bg-white';
+          div.textContent = el.value.trim() || '(Non complété)';
+          el.insertAdjacentElement('afterend', div);
+        });
 
-      tabs.forEach(sec => sec.classList.add('print-include'));
-      document.body.classList.add('print-all');
-      window.print();
+        tabs.forEach(sec => sec.classList.add('print-include'));
+        document.body.classList.add('print-all');
+
+        // Force le recalcul de la mise en page avant l'impression dans Safari sur iPad.
+        void document.documentElement.offsetHeight;
+        window.print();
+      } catch (error) {
+        endPrintAll();
+        console.error('Échec de la préparation de l’impression complète :', error);
+        alert('L’impression du cours n’a pas pu être préparée. Recharge la page puis réessaie. Si le problème persiste, contacte ton enseignant.');
+      }
     }
 
     window.onload = function () {
