@@ -13,19 +13,19 @@ body{font-family:Inter,sans-serif;background:#faf9f6;color:#1e293b}h1,h2,h3{font
 </style>
 </head>
 <body class="min-h-screen">
-<header class="bg-[#143d29] text-white shadow-lg">
- <div class="max-w-6xl mx-auto px-4 py-5 flex flex-wrap items-center justify-between gap-4">
-  <div class="flex items-center gap-3"><div class="bg-emerald-700 p-3 rounded-xl"><i data-lucide="sprout" class="w-7 h-7"></i></div><div><div class="text-xs uppercase tracking-wider text-emerald-200 font-bold">BTSA ACS'agri • Agro-écologie</div><h1 class="text-xl sm:text-2xl font-extrabold">Corrigé interactif — Plan Écophyto</h1><p class="text-sm text-emerald-100">Réduction de la pression phytosanitaire</p></div></div>
-  <div class="flex gap-2 no-print"><a href="./" class="px-3 py-2 rounded-lg bg-emerald-800 border border-emerald-600 text-sm font-semibold">← Retour au cours</a><button onclick="window.print()" class="px-3 py-2 rounded-lg bg-amber-500 text-slate-950 text-sm font-bold flex gap-2 items-center"><i data-lucide="file-down" class="w-4 h-4"></i> Imprimer / PDF</button></div>
+<header class="bg-emerald-950 text-white shadow-lg sticky top-0 z-50 border-b border-emerald-800">
+ <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+  <div class="flex items-center gap-3"><div class="bg-emerald-600 p-2.5 rounded-xl shadow-inner"><i data-lucide="sprout" class="w-7 h-7"></i></div><div><div class="text-xs uppercase tracking-wider text-emerald-200 font-bold">BTSA ACS'agri • Agro-écologie</div><h1 class="text-xl sm:text-2xl font-extrabold">Corrigé interactif — Plan Écophyto</h1><p class="text-sm text-emerald-100">Réduction de la pression phytosanitaire</p></div></div>
+  <div class="flex gap-2 no-print"><a href="./" class="px-3 py-2 rounded-lg bg-emerald-800 border border-emerald-600 text-sm font-semibold">← Retour au cours</a></div>
  </div>
- <nav class="bg-[#1b4d34] no-print"><div class="max-w-6xl mx-auto px-4 py-2 flex gap-2 overflow-x-auto">
-  <button class="tabbtn bg-white text-[#143d29]" onclick="showTab('questions',this)">1. Questions corrigées</button>
-  <button class="tabbtn text-white" onclick="showTab('simulateur',this)">2. Simulateur IFT</button>
+ <nav class="bg-emerald-900/60 border-t border-emerald-800/80 no-print"><div class="max-w-7xl mx-auto px-4 flex items-center gap-1 sm:gap-2 py-2 overflow-x-auto">
+  <button class="tabbtn bg-white text-emerald-950 shadow-sm rounded-lg px-3.5 py-2 text-sm font-semibold" onclick="showTab('questions',this)">1. Questions corrigées</button>
+  <button class="tabbtn text-emerald-100 hover:bg-emerald-800/70 rounded-lg px-3.5 py-2 text-sm font-semibold" onclick="showTab('simulateur',this)">2. Simulateur IFT</button>
   <button class="tabbtn text-white" onclick="showTab('synthese',this)">3. Fiche de révision</button>
   <button class="tabbtn text-white" onclick="showTab('quiz',this)">4. Quiz de vérification</button>
  </div></nav>
 </header>
-<main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+<main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 space-y-6">
 <section id="questions" class="tab-content space-y-5">
  <div class="bg-white rounded-2xl border border-stone-200 p-5 shadow-sm"><span class="text-xs font-bold uppercase text-amber-800">Étape 1 • Analyse documentaire</span><h2 class="text-2xl font-bold mt-1">Les cinq questions du dossier</h2><p class="text-sm text-slate-600 mt-2">Lis d'abord la question et essaie de retrouver la réponse. Clique ensuite sur « Afficher la correction » pour comparer ton travail.</p></div>
  <div class="card bg-white rounded-2xl border border-stone-200 p-5 space-y-3"><h3 class="font-bold text-lg text-[#143d29]">Question 1 — Définition et intérêt de l'IFT</h3><p class="text-sm">Définissez le sigle IFT et expliquez son double intérêt pour un chef d'exploitation agricole.</p><button class="answer-toggle text-sm font-bold text-emerald-800" onclick="toggleAnswer('a1',this)">Afficher la correction +</button><div id="a1" class="answer bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-sm leading-relaxed"><p><strong>IFT</strong> signifie « Indicateur de Fréquence de Traitements phytosanitaires ». Il comptabilise le nombre de doses de référence de produits phytopharmaceutiques utilisées par hectare au cours d'une campagne culturale. Il peut être calculé à l'échelle d'une parcelle, d'une exploitation ou d'un territoire et distingué selon les catégories de produits (herbicides, fongicides, insecticides/acaricides et autres).</p><p class="mt-2">Pour le chef d'exploitation, il permet d'abord de <strong>suivre et évaluer ses pratiques</strong> dans le temps et de se situer par rapport aux références de son territoire. Il aide ensuite à <strong>piloter la triple performance</strong> économique, environnementale et sociale, en identifiant des marges de progrès et en raisonnant les interventions.</p><p class="mt-2 text-xs text-emerald-900">À retenir : l'IFT mesure une fréquence d'utilisation, pas directement la toxicité des produits.</p></div></div>
