@@ -8,6 +8,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js pour le graphique OEB -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Génération directe d’un PDF (compatible Safari/iPad) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.3/html2pdf.bundle.min.js"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Google Fonts : Plus Jakarta Sans & Inter -->
@@ -134,9 +136,9 @@
         </button>
 
         <!-- Bouton Imprimer tout le cours -->
-        <button onclick="printWholeCourse()" class="bg-[#246b47] hover:bg-emerald-600 text-white text-xs sm:text-sm font-bold px-3.5 py-2.5 rounded-xl transition flex items-center gap-2 shadow-sm border border-emerald-500/30">
+        <button onclick="exportWholeCoursePDF()" class="bg-[#246b47] hover:bg-emerald-600 text-white text-xs sm:text-sm font-bold px-3.5 py-2.5 rounded-xl transition flex items-center gap-2 shadow-sm border border-emerald-500/30">
           <i data-lucide="file-text" class="w-4 h-4"></i>
-          <span>Imprimer tout le cours</span>
+          <span>Enregistrer tout le cours en PDF</span>
         </button>
 
         <!-- Bouton Remise à zéro -->
@@ -1379,41 +1381,115 @@
     }
     window.addEventListener('afterprint', endPrintAll);
 
-    function printWholeCourse() {
+    async function exportWholeCoursePDF() {
+      const button = document.querySelector('button[onclick="exportWholeCoursePDF()"]');
+      const originalLabel = button ? button.innerHTML : '';
+      // Ouvrir l’onglet immédiatement pour éviter le blocage des fenêtres sur iPad.
+      const pdfTab = window.open('', '_blank');
+
       try {
-        endPrintAll();
-        const studentName = document.getElementById('student-name');
-        const printName = document.getElementById('print-all-name');
-        const printScore = document.getElementById('print-all-score');
-        const printNote = document.getElementById('print-all-note');
-        if (!studentName || !printName || !printScore || !printNote) {
-          throw new Error('Les éléments nécessaires à la préparation de l’impression sont introuvables.');
+        if (typeof html2pdf === 'undefined') {
+          throw new Error('Le module de création PDF ne s’est pas chargé. Vérifiez la connexion puis rechargez la page.');
+        }
+        if (button) {
+          button.disabled = true;
+          button.innerHTML = '<span>Préparation du PDF…</span>';
+          button.classList.add('opacity-70');
         }
 
-        printName.textContent = studentName.value.trim() || 'Non renseigné';
-        printScore.textContent = lastQuizScore || 'Non évalué';
-        // L'impression inclut les 4 étapes, même si elles sont verrouillées.
-        printNote.textContent =
-          'Version papier complète : les quatre étapes et les trois documents sont inclus.';
+        const exportRoot = document.createElement('div');
+        exportRoot.style.cssText = 'width:780px;padding:30px 34px;background:#ffffff;color:#1e293b;font-family:Arial,sans-serif;box-sizing:border-box;';
+        const title = document.createElement('div');
+        title.style.cssText = 'border-bottom:2px solid #143d29;padding-bottom:14px;margin-bottom:22px;';
+        title.innerHTML = '<div style="font-size:11px;font-weight:bold;text-transform:uppercase;color:#476453;">BTS ACS’agri • Module Agro-écologie</div><h1 style="font-size:24px;line-height:1.25;color:#143d29;margin:8px 0;">Plan Écophyto & Réduction des Produits Phytosanitaires</h1><div style="font-size:12px;">Cours complet — version PDF</div>';
+        exportRoot.appendChild(title);
 
-        const tabs = Array.from(document.querySelectorAll('.tab-content'));
-        document.querySelectorAll('textarea, input.trace-input').forEach(el => {
-          const div = document.createElement('div');
-          div.className = 'print-mirror hidden whitespace-pre-wrap text-xs sm:text-sm p-2.5 rounded-lg border border-stone-300 bg-white';
-          div.textContent = el.value.trim() || '(Non complété)';
-          el.insertAdjacentElement('afterend', div);
+        const name = document.getElementById('student-name')?.value?.trim();
+        if (name) {
+          const student = document.createElement('p');
+          student.textContent = 'Élève : ' + name;
+          student.style.cssText = 'font-size:12px;margin:0 0 18px;';
+          exportRoot.appendChild(student);
+        }
+
+        document.querySelectorAll('main .tab-content').forEach((section, index) => {
+          const clone = section.cloneNode(true);
+          clone.classList.remove('hidden', 'print-include');
+          clone.style.cssText = 'display:block!important;position:static!important;width:100%;max-height:none;overflow:visible;margin:0 0 24px;padding:0;break-inside:auto;';
+          clone.querySelectorAll('.hidden').forEach(el => {
+            if (el.classList.contains('tab-content')) el.classList.remove('hidden');
+          });
+          clone.querySelectorAll('.doc-view').forEach(el => {
+            el.style.cssText += ';display:block!important;max-height:none!important;height:auto!important;overflow:visible!important;';
+          });
+          clone.querySelectorAll('textarea, input.trace-input').forEach(el => {
+            const mirror = document.createElement('div');
+            mirror.textContent = el.value?.trim() || '(Non complété)';
+            mirror.style.cssText = 'white-space:pre-wrap;font-size:12px;line-height:1.5;padding:9px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;margin:6px 0 12px;min-height:24px;';
+            el.replaceWith(mirror);
+          });
+          clone.querySelectorAll('button').forEach(el => el.remove());
+          clone.querySelectorAll('input:not([type="radio"]), select').forEach(el => el.remove());
+          clone.querySelectorAll('input[type="radio"]').forEach(el => {
+            const label = el.closest('label');
+            if (label) {
+              label.style.cssText += ';display:block;padding:5px 8px;margin:3px 0;border:1px solid #e2e8f0;border-radius:5px;';
+              if (!el.checked) el.style.display = 'none';
+            }
+          });
+          clone.querySelectorAll('.max-h-\\[680px\\]').forEach(el => {
+            el.style.maxHeight = 'none';
+            el.style.overflow = 'visible';
+          });
+          if (index > 0) clone.style.pageBreakBefore = 'always';
+          exportRoot.appendChild(clone);
         });
 
-        tabs.forEach(sec => sec.classList.add('print-include'));
-        document.body.classList.add('print-all');
+        exportRoot.querySelectorAll('img').forEach(img => {
+          img.style.maxWidth = '100%';
+          img.style.height = 'auto';
+        });
+        exportRoot.style.position = 'fixed';
+        exportRoot.style.left = '-10000px';
+        exportRoot.style.top = '0';
+        exportRoot.style.zIndex = '-1';
+        document.body.appendChild(exportRoot);
 
-        // Force le recalcul de la mise en page avant l'impression dans Safari sur iPad.
-        void document.documentElement.offsetHeight;
-        window.print();
+        // Laisse le navigateur calculer les styles et charger les images avant la capture.
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        const options = {
+          margin: [10, 8, 12, 8],
+          filename: 'Cours_Plan_Ecophyto_BTS_ACSagri.pdf',
+          image: { type: 'jpeg', quality: 0.96 },
+          html2canvas: { scale: 1.5, useCORS: true, backgroundColor: '#ffffff', scrollY: 0 },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          pagebreak: { mode: ['css', 'legacy'], avoid: ['.rounded-xl', '.rounded-2xl', 'h2', 'h3'] }
+        };
+        const pdfBlob = await html2pdf().set(options).from(exportRoot).outputPdf('blob');
+        exportRoot.remove();
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+
+        if (pdfTab && !pdfTab.closed) {
+          pdfTab.location.href = pdfUrl;
+        } else {
+          const link = document.createElement('a');
+          link.href = pdfUrl;
+          link.download = options.filename;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+        }
+        // Ne pas révoquer tout de suite : Safari doit pouvoir afficher le PDF.
       } catch (error) {
-        endPrintAll();
-        console.error('Échec de la préparation de l’impression complète :', error);
-        alert('L’impression du cours n’a pas pu être préparée. Recharge la page puis réessaie. Si le problème persiste, contacte ton enseignant.');
+        if (pdfTab && !pdfTab.closed) pdfTab.close();
+        console.error('Échec de la création du PDF :', error);
+        alert('La création du PDF a échoué. Vérifiez votre connexion internet puis rechargez la page avant de réessayer.');
+      } finally {
+        if (button) {
+          button.disabled = false;
+          button.innerHTML = originalLabel;
+          button.classList.remove('opacity-70');
+        }
       }
     }
 
